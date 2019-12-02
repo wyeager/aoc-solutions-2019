@@ -24,7 +24,7 @@
    Currently not accounting for inputs which would result 
    in 0 or negative amounts of fuel.\"
   [mass]
-  (- (js/Math.floor (/ mass 3)) 2)
+  (- (js/Math.floor (/ mass 3)) 2))
 
 (defn problem-1-part-1
   \"Solves part 1 of problem 1: 
