@@ -87,8 +87,8 @@
 
 ;; Utils
 
-(defn get-numbers [lines]
-  (let [str-numbers (clojure.string/split lines #"\s+")
+(defn get-numbers [lines regex]
+  (let [str-numbers (clojure.string/split lines regex)
         numbers (map js/parseInt str-numbers)]
     numbers))
 
@@ -114,7 +114,7 @@
 (defn problem-1-part-1 
   "Solves part 1 of problem 1: https://adventofcode.com/2019/day/1#part1. Expects a string of white space separated numbers."
   [module-masses-input]
-  (let [masses (get-numbers module-masses-input)]
+  (let [masses (get-numbers module-masses-input #"\s+")]
     (reduce + (map find-fuel-req masses))))
 
 ;; Problem 1 Part 2
@@ -122,5 +122,14 @@
 (defn problem-1-part-2
   "Solves part 1 of problem 2: https://adventofcode.com/2019/day/1#part2. Expects a string of white space separated numbers."
   [module-masses-input]
-  (let [masses (get-numbers module-masses-input)]
+  (let [masses (get-numbers module-masses-input #"\s+")]
     (reduce + (map find-fuel-part-2 masses))))
+
+(defn get-program-arr [program-str]
+  (clojure.string/split program-str #",")
+  )
+
+(defn problem-2-part-1 [program-str]
+  (let [program-arr (vec (get-numbers program-str #","))]
+    program-arr)
+  )
