@@ -72,8 +72,8 @@
   [:div 
    [:h2 "Advent of Code Solutions 2019"]
    [main-description]
-   [:ul (map (fn [sol] 
-               [:li [solution (sol :name) (sol :code)]])
+   [:div (map (fn [sol] 
+               [:div [solution (sol :name) (sol :code)]])
              solutions)]])
 
 ;; -------------------------
