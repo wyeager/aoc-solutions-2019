@@ -50,6 +50,43 @@
   [module-masses-input]
   (let [masses (get-numbers module-masses-input)]
     (reduce + (map find-fuel-part-2 masses))))
+"}
+                 {:name "Problem 2 (part 1)"
+                  :code "
+(defn get-numbers [lines regex]
+  (let [str-numbers (clojure.string/split lines regex)
+        numbers (map js/parseInt str-numbers)]
+    numbers))
+
+(defn process-op-codes
+  \"Expects a vector of 4 numbers\"
+  [op-codes program]
+  (let [op (op-codes 0)
+        ;; get value at index of program given by element of subvector
+        first-operand (program (op-codes 1))
+        second-operand (program (op-codes 2))
+        ops {1 + 2 *}]
+    ((ops op) first-operand second-operand)))
+
+(defn process-program
+  \"Expects a vector of numbers. Assumes all programs are terminated by a 99 operation\"
+  [program]
+  (loop [modified-program program
+         start-index 0]
+    (let [end-index (+ start-index 4)
+          sub-vector (subvec modified-program start-index end-index)]
+      (if (= 99 (first sub-vector))
+        ;; base case: return first element of modified program
+        (first modified-program)
+        ;; otherwise calculate value based on sub vector and replace element of program with specified index
+        (let [res (process-op-codes sub-vector modified-program)
+              replacement-index (sub-vector 3)]
+          (recur (assoc modified-program replacement-index res) end-index))))))
+
+(defn problem-2-part-1 [program-str]
+  (let [program-arr (vec (get-numbers program-str #\",\"))
+        program-replace-digits (assoc program-arr 1 12 2 2)]
+    (process-program program-replace-digits)))
 "}))
 
 ;; -------------------------
@@ -58,7 +95,8 @@
 (defn solution [name code]
   [:div
    [:h3 name]
-   [:pre {:style {:background-color "rgb(248, 248, 248)"}}
+   [:pre {:style {:background-color "rgb(248, 248, 248)"
+                  :overflow-x "scroll"}}
     [:code code]]])
 
 (defn main-description []
@@ -129,7 +167,37 @@
   (clojure.string/split program-str #",")
   )
 
+(defn process-op-codes 
+  "Expects a vector of 4 numbers"
+  [op-codes program]
+  (let [op (op-codes 0)
+        ;; get value at index of program given by element of subvector
+        first-operand (program (op-codes 1))
+        second-operand (program (op-codes 2))
+        ops {1 + 2 *}]
+    ((ops op) first-operand second-operand)
+    )
+  )
+
+(defn process-program 
+  "Expects a vector of numbers. Assumes all programs are terminated by a 99 operation"
+  [program]
+  (loop [modified-program program
+         start-index 0]
+    (let [end-index (+ start-index 4)
+          sub-vector (subvec modified-program start-index end-index)]
+      (if (= 99 (first sub-vector))
+        ;; base case: return first element of modified program
+        (first modified-program)
+        ;; otherwise calculate value based on sub vector and replace element of program with specified index
+        (let [res (process-op-codes sub-vector modified-program)
+              replacement-index (sub-vector 3)]
+          (recur (assoc modified-program replacement-index res) end-index)))))
+  )
+
 (defn problem-2-part-1 [program-str]
-  (let [program-arr (vec (get-numbers program-str #","))]
-    program-arr)
+  (let [program-arr (vec (get-numbers program-str #","))
+        program-replace-digits (assoc program-arr 1 12 2 2)]
+    (process-program program-replace-digits)
+    )
   )
