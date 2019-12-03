@@ -87,6 +87,28 @@
   (let [program-arr (vec (get-numbers program-str #\",\"))
         program-replace-digits (assoc program-arr 1 12 2 2)]
     (process-program program-replace-digits)))
+"}
+                 {:name "Problem 2 (part 2)"
+                  :code "
+(defn problem-2-part-1 [program-str noun verb]
+  (let [program-arr (vec (get-numbers program-str #\",\"))
+        program-replace-digits (assoc program-arr 1 noun 2 verb)]
+    (process-program program-replace-digits)))
+
+;; warning: really ugly clojure incoming, nesting loops is something I'm struggling to do recursively
+;; I'd like to return to this to tidy it up
+(defn problem-2-part-2 [program-str]
+  (loop [x 0]
+    (loop [y 0]
+      (if (= (problem-2-part-1 program-str x y) 19690720)
+        (println (str \"Solution: \" x \" \" y \" then multiply x by 100 and add y: \" (+ y (* 100 x))))
+        nil)
+      (if (> y 99)
+        nil
+        (recur (inc y))))
+    (if (> x 99)
+      nil
+      (recur (inc x)))))
 "}))
 
 ;; -------------------------
@@ -195,9 +217,25 @@
           (recur (assoc modified-program replacement-index res) end-index)))))
   )
 
-(defn problem-2-part-1 [program-str]
+(defn problem-2-part-1 [program-str noun verb]
   (let [program-arr (vec (get-numbers program-str #","))
-        program-replace-digits (assoc program-arr 1 12 2 2)]
+        program-replace-digits (assoc program-arr 1 noun 2 verb)]
     (process-program program-replace-digits)
     )
+  )
+
+;; warning: really ugly clojure incoming, nesting loops is something I'm struggling to do recursively
+(defn problem-2-part-2 [program-str]
+  (loop [x 0]
+    (loop [y 0]
+      (if (= (problem-2-part-1 program-str x y) 19690720)
+        (println (str "Solution: " x " " y " then multiply x by 100 and add y: " (+ y (* 100 x))))
+        nil
+        )
+      (if (> y 99)
+        nil
+        (recur (inc y))))
+    (if (> x 99)
+      nil
+      (recur (inc x))))
   )
