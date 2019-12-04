@@ -10,6 +10,12 @@ body {
   padding-right: 1%;
 }
 
+@media screen and (max-width: 600px) {
+  body {
+    font-size: .8em;
+  }
+}
+
 h1, h2, h3 {
   color: #000;
 }
