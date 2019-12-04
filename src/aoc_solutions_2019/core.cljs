@@ -39,9 +39,7 @@
         (recur fuel (+ fuel total))))))
 
 (defn problem-1-part-2
-  \"Solves part 1 of problem 2: 
-   https://adventofcode.com/2019/day/1#part2. Expects a string
-   of white space separated numbers.\"
+  \"Expects a string of white space separated numbers.\"
   [module-masses-input]
   (let [masses (get-numbers module-masses-input)]
     (reduce + (map find-fuel-part-2 masses))))
