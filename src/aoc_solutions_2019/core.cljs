@@ -20,17 +20,11 @@
     numbers))
 
 (defn find-fuel-req
-  \"To find the fuel required for a module, take its mass, 
-   divide by three, round down, and subtract 2.
-   Currently not accounting for inputs which would result 
-   in 0 or negative amounts of fuel.\"
   [mass]
   (- (js/Math.floor (/ mass 3)) 2))
 
 (defn problem-1-part-1
-  \"Solves part 1 of problem 1: 
-   https://adventofcode.com/2019/day/1#part1. Expects a string 
-   of white space separated numbers.\"
+  \"Expects a string of white space separated numbers.\"
   [module-masses-input]
   (let [masses (get-numbers module-masses-input)]
     (reduce + (map find-fuel-req masses))))"}
@@ -329,3 +323,55 @@
         dists (map get-manhattan-dist intersections)]
     (second (sort dists))
     ))
+
+; (defn add-steps-to-ints [ints sub-path first-time]
+;   ;; need to check if we've already hit this intersection
+;   (loop [remaing-points sub-path])
+;   )
+
+; (defn get-steps-to-intersections [path steps-to-intersections]
+;   (loop [remaining-directions path
+;          ints steps-to-intersections
+;          starting-point [0 0]
+;          encountered-ints #{}]
+;     (if (empty? remaining-directions)
+;       steps-to-intersections
+;       (let [[head & rest] remaining-directions
+;             res (move-wire starting-point head)
+;             ;; res 1 is the list of points the direction brought us through
+;             ;; ints is a map from intersection point to a 2D vector with the number of steps it takes to get to the intersection along both paths
+;             sad (add-steps-to-ints ints (res 1))]
+;         (recur rest
+;                (add-steps-to-ints ints (res 1))
+;                (res 1))
+;         )
+;       )
+;     )
+;   )
+
+; (defn problem-3-part-2 [path-str-1 path-str-2]
+;   (let [path-1 (clojure.string/split path-str-1 #",")
+;         path-2 (clojure.string/split path-str-2 #",")
+;         path-1-points (generate-points path-1)
+;         path-2-points (generate-points path-2)
+;         intersections (clojure.set/intersection path-1-points path-2-points)
+;         steps-to-intersections (apply assoc {}
+;                                       (interleave intersections (cycle [[]])))
+;         path-1-steps (get-steps-to-intersections path-1 steps-to-intersections)]
+
+;     ))
+
+; {[5 6] [2 3] [1 2] []}
+
+; (def m {:a 1})
+
+; (def s #{:a :b})
+
+; (assoc m :a 2)
+
+; (apply assoc {}
+;        (interleave #{:a :b} (cycle [[]])))
+
+; (map (fn [x] x) s)
+
+; (+ 1 1)
