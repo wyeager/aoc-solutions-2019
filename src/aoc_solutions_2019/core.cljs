@@ -162,7 +162,8 @@
   [:div
    [:h3 name]
    [:pre {:style {:background-color "rgb(248, 248, 248)"
-                  :overflow-x "scroll"}}
+                  :overflow-x "scroll"}
+          :class "language-clojure"}
     [:code code]]])
 
 (defn main-description []
