@@ -145,7 +145,97 @@
         dists (map get-manhattan-dist intersections)]
     (second (sort dists))))
 "
-                  }))
+                  }
+                 {:name "Problem 3 (part 2)"
+                  :code "
+(defn move-wire
+  [start instruction dist-traveled point-distances points-crossed]
+  (let [dir (first instruction)
+        dist (js/parseInt (subs instruction 1))
+        start-x (start 0)
+        start-y (start 1)]
+    (cond
+      ;; this could be a lot better...
+      (= dir \"R\") [(set (map (fn [i] [(+ start-x i) start-y]) (range 0 (+ dist 1))))
+                   (loop [i 0
+                          pnt-dists point-distances]
+                     (if (> i dist)
+                       pnt-dists
+                       (recur (inc i)
+                              (if (contains? points-crossed [(+ start-x i) start-y])
+                                pnt-dists
+                                (conj pnt-dists {[(+ start-x i) start-y] (+ i dist-traveled)})))))
+                   [(+ start-x dist) start-y]
+                   dist]
+      (= dir \"L\") [(set (map (fn [i] [(- start-x i) start-y]) (range 0 (+ dist 1))))
+                   (loop [i 0
+                          pnt-dists point-distances]
+                     (if (> i dist)
+                       pnt-dists
+                       (recur (inc i)
+                              (if (contains? points-crossed [(- start-x i) start-y])
+                                pnt-dists
+                                (conj pnt-dists {[(- start-x i) start-y] (+ i dist-traveled)})))))
+                   [(- start-x dist) start-y]
+                   dist]
+      (= dir \"U\") [(set (map (fn [i] [start-x (+ start-y i)]) (range 0 (+ dist 1))))
+                   (loop [i 0
+                          pnt-dists point-distances]
+                     (if (> i dist)
+                       pnt-dists
+                       (recur (inc i)
+                              (if (contains? points-crossed [start-x (+ start-y i)])
+                                pnt-dists
+                                (conj pnt-dists {[start-x (+ start-y i)] (+ i dist-traveled)})))))
+                   [start-x (+ start-y dist)]
+                   dist]
+      (= dir \"D\") [(set (map (fn [i] [start-x (- start-y i)]) (range 0 (+ dist 1))))
+                   (loop [i 0
+                          pnt-dists point-distances]
+                     (if (> i dist)
+                       pnt-dists
+                       (recur (inc i)
+                              (if (contains? points-crossed [start-x (- start-y i)])
+                                pnt-dists
+                                (conj pnt-dists {[start-x (- start-y i)] (+ i dist-traveled)})))))
+                   [start-x (- start-y dist)]
+                   dist])))
+
+(defn generate-points [path]
+  (loop [remaining-directions path
+         points-crossed #{}
+         starting-point [0 0]
+         dist-traveled 0
+         point-distances {}]
+    (if (empty? remaining-directions)
+      [points-crossed point-distances]
+      (let [[head & rest] remaining-directions
+            res (move-wire starting-point head dist-traveled point-distances points-crossed)]
+        (recur rest
+               (into points-crossed (res 0))
+               (res 2)
+               (+ dist-traveled (res 3))
+               (res 1))))))
+
+(defn get-dists-to-ints [ints dists-to-points-1 dists-to-points-2]
+  (loop [result {}
+         remaining-ints ints]
+    (if (empty? remaining-ints)
+      result
+      (let [[head & rest] remaining-ints]
+        (recur
+         (conj result {head (+ (dists-to-points-1 head) (dists-to-points-2 head))})
+         rest)))))
+
+(defn problem-3-part-2 [path-str-1 path-str-2]
+  (let [path-1 (clojure.string/split path-str-1 #\",\")
+        path-2 (clojure.string/split path-str-2 #\",\")
+        path-1-points (generate-points path-1)
+        path-2-points (generate-points path-2)
+        intersections (clojure.set/intersection (path-1-points 0) (path-2-points 0))
+        dists-along-wires-to-ints (get-dists-to-ints (vec intersections) (path-1-points 1) (path-2-points 1))]
+    (second (second (sort-by val < dists-along-wires-to-ints)))))
+"}))
 
 ;; -------------------------
 ;; Views
@@ -279,30 +369,77 @@
 
 (defn move-wire 
   "Expects start to be a 2D Vector and instruction to be for example R5. Returns a set of points that the wire now crosses"
-  [start instruction]
+  [start instruction dist-traveled point-distances points-crossed]
   (let [dir (first instruction)
         dist (js/parseInt (subs instruction 1))
         start-x (start 0)
         start-y (start 1)]
     (cond 
-      ;; this could be better...
-      (= dir "R") [(set (map (fn [i] [(+ start-x i) start-y]) (range 0 (+ dist 1)))) [(+ start-x dist) start-y]]
-      (= dir "L") [(set (map (fn [i] [(- start-x i) start-y]) (range 0 (+ dist 1)))) [(- start-x dist) start-y]]
-      (= dir "U") [(set (map (fn [i] [start-x (+ start-y i)]) (range 0 (+ dist 1)))) [start-x (+ start-y dist)] ]
-      (= dir "D") [(set (map (fn [i] [start-x (- start-y i)]) (range 0 (+ dist 1)))) [start-x (- start-y dist)]])
+      ;; this could be a lot better...
+      (= dir "R") [(set (map (fn [i] [(+ start-x i) start-y]) (range 0 (+ dist 1)))) 
+                   (loop [i 0
+                          pnt-dists point-distances]
+                     (if (> i dist)
+                       pnt-dists
+                       (recur (inc i) 
+                              (if (contains? points-crossed [(+ start-x i) start-y])
+                                pnt-dists
+                                (conj pnt-dists {[(+ start-x i) start-y] (+ i dist-traveled)})))))
+                   [(+ start-x dist) start-y] 
+                   dist]
+      (= dir "L") [(set (map (fn [i] [(- start-x i) start-y]) (range 0 (+ dist 1)))) 
+                   (loop [i 0
+                          pnt-dists point-distances]
+                     (if (> i dist)
+                       pnt-dists
+                       (recur (inc i) 
+                              (if (contains? points-crossed [(- start-x i) start-y])
+                                pnt-dists
+                                (conj pnt-dists {[(- start-x i) start-y] (+ i dist-traveled)})))))
+                   [(- start-x dist) start-y] 
+                   dist]
+      (= dir "U") [(set (map (fn [i] [start-x (+ start-y i)]) (range 0 (+ dist 1)))) 
+                   (loop [i 0
+                          pnt-dists point-distances]
+                     (if (> i dist)
+                       pnt-dists
+                       (recur (inc i)
+                              (if (contains? points-crossed [start-x (+ start-y i)])
+                                pnt-dists
+                                (conj pnt-dists {[start-x (+ start-y i)] (+ i dist-traveled)})))))
+                   [start-x (+ start-y dist)] 
+                   dist]
+      (= dir "D") [(set (map (fn [i] [start-x (- start-y i)]) (range 0 (+ dist 1))))
+                   (loop [i 0
+                          pnt-dists point-distances]
+                     (if (> i dist)
+                       pnt-dists
+                       (recur (inc i)
+                              (if (contains? points-crossed [start-x (- start-y i)])
+                                pnt-dists
+                                (conj pnt-dists {[start-x (- start-y i)] (+ i dist-traveled)}))
+                              )
+                       )
+                     )
+                   [start-x (- start-y dist)] 
+                   dist])
     )
   )
 
 (defn generate-points [path]
   (loop [remaining-directions path
          points-crossed #{}
-         starting-point [0 0]]
+         starting-point [0 0]
+         dist-traveled 0
+         point-distances {}]
     (if (empty? remaining-directions)
-      points-crossed
+      [points-crossed point-distances]
       (let [[head & rest] remaining-directions
-            res (move-wire starting-point head)]
+            res (move-wire starting-point head dist-traveled point-distances points-crossed)]
         (recur rest
                (into points-crossed (res 0))
+               (res 2)
+               (+ dist-traveled (res 3))
                (res 1))))))
 
 (defn get-manhattan-dist [point]
@@ -317,59 +454,32 @@
         path-2 (clojure.string/split path-str-2 #",")
         path-1-points (generate-points path-1)
         path-2-points (generate-points path-2)
-        intersections (clojure.set/intersection path-1-points path-2-points)
+        intersections (clojure.set/intersection (path-1-points 0) (path-2-points 0))
         dists (map get-manhattan-dist intersections)]
     (second (sort dists))
     ))
 
-; (defn add-steps-to-ints [ints sub-path first-time]
-;   ;; need to check if we've already hit this intersection
-;   (loop [remaing-points sub-path])
-;   )
+(defn get-dists-to-ints [ints dists-to-points-1 dists-to-points-2]
+  (loop [result {}
+         remaining-ints ints]
+    (if (empty? remaining-ints)
+      result
+      (let [[head & rest] remaining-ints]
+        (recur
+         (conj result {head (+ (dists-to-points-1 head) (dists-to-points-2 head))})
+         rest)
+        )
+      )
+    )
+  )
 
-; (defn get-steps-to-intersections [path steps-to-intersections]
-;   (loop [remaining-directions path
-;          ints steps-to-intersections
-;          starting-point [0 0]
-;          encountered-ints #{}]
-;     (if (empty? remaining-directions)
-;       steps-to-intersections
-;       (let [[head & rest] remaining-directions
-;             res (move-wire starting-point head)
-;             ;; res 1 is the list of points the direction brought us through
-;             ;; ints is a map from intersection point to a 2D vector with the number of steps it takes to get to the intersection along both paths
-;             sad (add-steps-to-ints ints (res 1))]
-;         (recur rest
-;                (add-steps-to-ints ints (res 1))
-;                (res 1))
-;         )
-;       )
-;     )
-;   )
-
-; (defn problem-3-part-2 [path-str-1 path-str-2]
-;   (let [path-1 (clojure.string/split path-str-1 #",")
-;         path-2 (clojure.string/split path-str-2 #",")
-;         path-1-points (generate-points path-1)
-;         path-2-points (generate-points path-2)
-;         intersections (clojure.set/intersection path-1-points path-2-points)
-;         steps-to-intersections (apply assoc {}
-;                                       (interleave intersections (cycle [[]])))
-;         path-1-steps (get-steps-to-intersections path-1 steps-to-intersections)]
-
-;     ))
-
-; {[5 6] [2 3] [1 2] []}
-
-; (def m {:a 1})
-
-; (def s #{:a :b})
-
-; (assoc m :a 2)
-
-; (apply assoc {}
-;        (interleave #{:a :b} (cycle [[]])))
-
-; (map (fn [x] x) s)
-
-; (+ 1 1)
+(defn problem-3-part-2 [path-str-1 path-str-2]
+  (let [path-1 (clojure.string/split path-str-1 #",")
+        path-2 (clojure.string/split path-str-2 #",")
+        path-1-points (generate-points path-1)
+        path-2-points (generate-points path-2)
+        intersections (clojure.set/intersection (path-1-points 0) (path-2-points 0))
+        dists-along-wires-to-ints (get-dists-to-ints (vec intersections) (path-1-points 1) (path-2-points 1))]
+    (second (second (sort-by val < dists-along-wires-to-ints)))
+    )
+  )
