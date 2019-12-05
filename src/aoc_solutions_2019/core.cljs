@@ -278,6 +278,37 @@
     (if (> i end)
       valid-pw-count
       (recur (inc i) (+ valid-pw-count (is-valid-pw i))))))
+"}
+                 {:name "Problem 4 (part 2)"
+                  :code "
+(defn check-adj-digits-part-2 [pw-str]
+  (loop [res false
+         matched-number nil
+         remaining-chars (apply str (drop 1 pw-str))
+         prev (first (take 1 pw-str))]
+    (let [[head & rest] remaining-chars
+          prev-int (js/parseInt prev)
+          curr-int (js/parseInt head)]
+      (if (or (empty? remaining-chars) (and (not= curr-int matched-number) res))
+        res
+        (recur
+         (and (= curr-int prev-int) (not= curr-int matched-number))
+         (if (= curr-int prev-int) curr-int nil)
+         rest
+         head)))))
+
+(defn is-valid-pw-part-2 [password]
+  (let [pw-str (str password)]
+    (if (and (check-asc pw-str) (check-adj-digits-part-2 pw-str))
+      1
+      0)))
+
+(defn problem-4-part-2 [start end]
+  (loop [i start
+         valid-pw-count 0]
+    (if (> i end)
+      valid-pw-count
+      (recur (inc i) (+ valid-pw-count (is-valid-pw-part-2 i))))))
 "}))
 
 ;; -------------------------
@@ -557,6 +588,23 @@
          head))))
   )
 
+(defn check-adj-digits-part-2 [pw-str]
+  (loop [res false
+         matched-number nil
+         remaining-chars (apply str (drop 1 pw-str))
+         prev (first (take 1 pw-str))]
+    (let [[head & rest] remaining-chars
+          prev-int (js/parseInt prev)
+          curr-int (js/parseInt head)]
+      (if (or (empty? remaining-chars) (and (not= curr-int matched-number) res))
+        res
+        (recur
+         (and (= curr-int prev-int) (not= curr-int matched-number))
+         (if (= curr-int prev-int) curr-int nil)
+         rest
+         head))
+      )))
+
 (defn is-valid-pw [password]
   (let [pw-str (str password)]
     (if (and (check-asc pw-str) (check-adj-digits pw-str))
@@ -573,5 +621,21 @@
       valid-pw-count
       (recur (inc i) (+ valid-pw-count (is-valid-pw i)))
       )
+    )
+  )
+
+(defn is-valid-pw-part-2 [password]
+  (let [pw-str (str password)]
+    (if (and (check-asc pw-str) (check-adj-digits-part-2 pw-str))
+      1
+      0))
+  )
+
+(defn problem-4-part-2 [start end]
+  (loop [i start
+         valid-pw-count 0]
+    (if (> i end)
+      valid-pw-count
+      (recur (inc i) (+ valid-pw-count (is-valid-pw-part-2 i))))
     )
   )
