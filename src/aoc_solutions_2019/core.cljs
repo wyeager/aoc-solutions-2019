@@ -235,6 +235,49 @@
         intersections (clojure.set/intersection (path-1-points 0) (path-2-points 0))
         dists-along-wires-to-ints (get-dists-to-ints (vec intersections) (path-1-points 1) (path-2-points 1))]
     (second (second (sort-by val < dists-along-wires-to-ints)))))
+"}
+                 {:name "Problem 4 (part 1)"
+                  :code "
+(defn check-asc [pw-str]
+  (loop [res true
+         remaining-chars (apply str (drop 1 pw-str))
+         prev (first (take 1 pw-str))]
+    (if (or (empty? remaining-chars) (not res))
+      res
+      (let [[head & rest] remaining-chars
+            prev-int (js/parseInt prev)
+            curr-int (js/parseInt head)]
+        (recur
+         (>= curr-int prev-int)
+         rest
+         head)))))
+
+(defn check-adj-digits [pw-str]
+  (loop [res false
+         remaining-chars (apply str (drop 1 pw-str))
+         prev (first (take 1 pw-str))]
+    (if (or (empty? remaining-chars) res)
+      res
+      (let [[head & rest] remaining-chars
+            prev-int (js/parseInt prev)
+            curr-int (js/parseInt head)]
+        (recur
+         (= curr-int prev-int)
+         rest
+         head)))))
+
+(defn is-valid-pw [password]
+  (let [pw-str (str password)]
+    (if (and (check-asc pw-str) (check-adj-digits pw-str))
+      1
+      0)))
+
+(defn problem-4-part-1 [start end]
+  (loop [i start
+         valid-pw-count 0]
+    (if (> i end)
+      valid-pw-count
+      (recur (inc i) (+ valid-pw-count (is-valid-pw i))))))
 "}))
 
 ;; -------------------------
@@ -481,5 +524,54 @@
         intersections (clojure.set/intersection (path-1-points 0) (path-2-points 0))
         dists-along-wires-to-ints (get-dists-to-ints (vec intersections) (path-1-points 1) (path-2-points 1))]
     (second (second (sort-by val < dists-along-wires-to-ints)))
+    )
+  )
+
+(defn check-asc [pw-str]
+  (loop [res true
+         remaining-chars (apply str (drop 1 pw-str))
+         prev (first (take 1 pw-str))]
+    (if (or (empty? remaining-chars) (not res))
+      res
+      (let [[head & rest] remaining-chars
+            prev-int (js/parseInt prev)
+            curr-int (js/parseInt head)]
+        (recur
+         (>= curr-int prev-int)
+         rest
+         head))))
+  )
+
+(defn check-adj-digits [pw-str]
+  (loop [res false
+         remaining-chars (apply str (drop 1 pw-str))
+         prev (first (take 1 pw-str))]
+    (if (or (empty? remaining-chars) res)
+      res
+      (let [[head & rest] remaining-chars
+            prev-int (js/parseInt prev)
+            curr-int (js/parseInt head)]
+        (recur
+         (= curr-int prev-int)
+         rest
+         head))))
+  )
+
+(defn is-valid-pw [password]
+  (let [pw-str (str password)]
+    (if (and (check-asc pw-str) (check-adj-digits pw-str))
+      1
+      0
+      )
+    )
+  )
+
+(defn problem-4-part-1 [start end]
+  (loop [i start
+         valid-pw-count 0]
+    (if (> i end)
+      valid-pw-count
+      (recur (inc i) (+ valid-pw-count (is-valid-pw i)))
+      )
     )
   )
